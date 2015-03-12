@@ -51,17 +51,23 @@ class Hand
 
   def scoring
     points = 0
+    aces = 0
     cards.each do |card|
       if card.ace? == true
-        if points + 11 > 21
-          points += 1
-        else
-          points += 11
-        end
+        aces += 1
       elsif card.face? == true
         points += 10
       else
         points += card.rank.to_i
+      end
+    end
+    while aces > 0
+      if points + (aces * 11) <= 21
+        points += aces * 11
+        aces = 0
+      else
+        points += 1
+        aces -= 1
       end
     end
     @score = points
