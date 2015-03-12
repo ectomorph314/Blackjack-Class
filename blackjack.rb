@@ -1,22 +1,25 @@
 #!/usr/bin/env ruby
-require 'pry'
-# YOUR CODE HERE
 class Card
   attr_reader :rank, :suit
-  def initialize (rank, suit)
+
+  def initialize(rank, suit)
     @rank = rank
     @suit = suit
   end
+
   def face?
-    return ['J','Q','K'].include?(rank)
+    %w(J Q K).include?(rank)
   end
+
   def ace?
-    return ['A'].include?(rank)
+    %w(A).include?(rank)
   end
 end
+
 class Deck
-  SUITS = ['♤','♧','♡','♢']
-  RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K']
+  SUITS = %w(♤ ♧ ♡ ♢)
+  RANKS = %w(A 2 3 4 5 6 7 8 9 10 J Q K)
+
   def initialize
     @deck = []
     SUITS.each do |suit|
@@ -24,19 +27,28 @@ class Deck
         @deck << Card.new(rank, suit)
       end
     end
-    return @deck.shuffle!
+    @deck.shuffle!
   end
+
   def draw!
-    return @deck.pop
+    @deck.pop
   end
 end
+
 class Hand
   attr_reader :cards, :score
+
   def initialize(name)
     @cards = []
     @name = name.downcase
     @score = 0
   end
+
+  def deal(card)
+    cards << card
+    "#{@name.capitalize} was dealt #{card.rank}#{card.suit}"
+  end
+
   def scoring
     points = 0
     cards.each do |card|
@@ -53,11 +65,13 @@ class Hand
       end
     end
     @score = points
-    return "#{@name.capitalize} score: #{points}"
+    "#{@name.capitalize} score: #{points}"
   end
 end
+
 class Blackjack
   attr_reader :player, :dealer
+
   def initialize
     @deck = Deck.new
     @player = Hand.new('player')
@@ -65,28 +79,20 @@ class Blackjack
     puts 'Welcome to Blackjack!'
     puts
     2.times do
-      puts deal('player')
+      puts player.deal(@deck.draw!)
     end
     puts player.scoring
     puts
     choice
   end
-  def deal(name)
-    card = @deck.draw!
-    if name.downcase == 'player'
-      player.cards << card
-    else
-      dealer.cards << card
-    end
-    return "#{name.capitalize} was dealt #{card.rank}#{card.suit}"
-  end
+
   def choice
     loop do
       print 'Hit or stand (H/S): '
       input = gets.chomp
       puts
       if input == 'h'.downcase
-        puts deal('player')
+        puts player.deal(@deck.draw!)
         puts player.scoring
         if player.score > 21
           puts 'Bust! You lose...'
@@ -103,10 +109,11 @@ class Blackjack
       end
     end
   end
+
   def turn
-    puts deal('dealer')
+    puts dealer.deal(@deck.draw!)
     loop do
-      puts deal('dealer')
+      puts dealer.deal(@deck.draw!)
       puts dealer.scoring
       puts
       if dealer.score.between?(17, 21)
